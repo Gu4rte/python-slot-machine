@@ -1,0 +1,119 @@
+import random
+import pyfiglet
+import time
+import sys
+
+#Randomly spins row
+def spin_row():
+    spinSymbols = ['🍒', '🍉', '🔔', '💎', '👑']
+    return [random.choice(spinSymbols) for _ in range(3)]
+
+#Prints appealing row spin
+def visual_row(row):
+    print('Spinning...\n')
+    print('*' * 10)
+    for i, symbol in enumerate(row):
+        print(symbol, end='', flush=True)
+        if i < len(row) - 1:
+            print('|', end='', flush=True)
+        if i == len(row)-1:
+            print(end='\n',flush=True)
+            print('*' * 10)
+        time.sleep(1)
+
+#Check if user wins money
+def get_payout(row,bet):
+    if row[0] == row[1] == row[2]:
+        if row[0] == '🍒':
+            return bet * 3
+        elif row[0] == '🍉':
+            return bet * 4
+        elif row[0] == '🔔':
+            return bet * 5
+        elif row[0] == '💎':
+            return bet * 10
+        elif row[0] == '👑':
+            return bet * 40
+    return 0
+
+#Main function that holds everything together
+def main():
+    wins = 0
+    total_spins = 0
+    original_balance = 100
+    balance = 100
+    print('*' * 50)
+    ascii_banner = pyfiglet.figlet_format(f"PY SLOTS")
+    print(ascii_banner)
+    print('Symbols: 🍒 | 🍉 | 🔔 | 💎 | 👑')
+    print('*' * 50)
+    while balance > 0:
+        print(f'Current balance: ${balance}')
+        while True:
+            amount = input('Enter bet amount: $')
+            try:
+              amount = int(amount)
+            except ValueError as err:
+                print('Invalid amount.')
+                continue
+            if amount < 0:
+                print('Deposit can not be negative.')
+                continue
+            if amount > balance:
+                print('Not enough funds!')
+                continue
+            else:
+                break
+        balance -= amount
+
+        row = spin_row()
+        total_spins += 1
+        visual_row(row)
+        payout = get_payout(row,amount)
+
+        if payout > 0:
+            print(f'You won ${payout}!')
+            balance += payout
+            wins += 1
+        else:
+            print('You lost this round!')
+
+
+        while True:
+            play_again = input('Do you wish to spin again? (Y/N): ').upper()
+            print('')
+            if play_again == 'Y':
+                break
+            elif play_again == 'N':
+                print("*******************************************")
+                print(f"Game over! Your final balance is ${balance}")
+                print("*******************************************")
+                profit = balance - original_balance
+                winRate = (wins / total_spins) * 100
+                print(f'Win rate: {winRate:.2f}%')
+                print(f'Total spins: {total_spins}')
+                if profit > 0:
+                    print(f'You made a total of ${profit}!')
+                if profit < 0:
+                    profit = abs(profit)
+                    print(f'You lost a total of ${profit}!')
+                sys.exit()
+            else:
+                print('Invalid choice.')
+    #not very optimal but couldn't figure it out
+    print("*******************************************")
+    print(f"Game over! Your final balance is ${balance}")
+    print("*******************************************")
+    profit = balance - original_balance
+    winRate = (wins / total_spins) * 100
+    print(f'Win rate: {winRate:.2f}%')
+    print(f'Total spins: {total_spins}')
+    if profit > 0:
+        print(f'You made a total of ${profit}!')
+    if profit < 0:
+        profit = abs(profit)
+        print(f'You lost a total of ${profit}!')
+    sys.exit()
+
+if __name__ == '__main__':
+    main()
